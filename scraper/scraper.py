@@ -59,11 +59,23 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
       # TODO: This needs to be tested but is elegent as hell if it works. I think.
       sarr = attribute.text.split(':', 1)
       if len(sarr[1].strip()) > 0:  # Some blank fields show up, ignore those
-        card[sarr[0]] = sarr[1].strip()
+        if sarr[0] == 'Icons':
+          if sarr[1].find('Military') != -1:
+            card['Military'] = 'True'
+          if sarr[1].find('Intrigue') != -1:
+            card['Intrigue'] = 'True'
+          if sarr[1].find('Power') != -1:
+            card['Power'] = 'True'
+        # TODO: Loyal is found here. Ex: Stark (Loyal)
+#       elif sarr[0] == 'Faction':
+          # DO STUFF
+        else:
+          card[sarr[0]] = sarr[1].strip()
 #    else:
 #      print "Can't handle: ", attribute.text # debugging
     card_list.append(card)
   break # TEMP: Just to speed things up instead of processing ALL the cards.
+
 
 
 
