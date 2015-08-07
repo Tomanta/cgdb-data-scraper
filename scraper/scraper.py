@@ -18,7 +18,7 @@ key_list = ['Title', 'Set', 'Pack', 'Number', 'Illustrator', 'Type',
 
 card_list = []
 
-def init_card(self):
+def init_card():
   c = {}
   for k in key_list:
     c[k] = ""
@@ -47,19 +47,21 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
   for attribute in tag.findAll('li'):
     
     # a few items have class, that makes it easy!
-    if attribute.has_attr('class') and len(attribute.text) > 0:
+    if attribute.find('span'):
+       # TODO: Format text part of card correctly
+       card['Text'] = attribute.text.strip()
+    elif attribute.has_attr('class') and len(attribute.text) > 0:
        if 'traits' in attribute['class']:
-           card['traits'] = attribute.text
+           card['Traits'] = attribute.text
        elif 'flavorText' in attribute['class']:
-           card['flavorText'] = attribute.text
+           card['Flavor'] = attribute.text
     elif attribute.text.find(':') != -1:
       # TODO: This needs to be tested but is elegent as hell if it works. I think.
       sarr = attribute.text.split(':', 1)
       if len(sarr[1].strip()) > 0:  # Some blank fields show up, ignore those
         card[sarr[0]] = sarr[1].strip()
-    else:
-      print "Can't handle: " + attribute.text
-    # There is a <SPAN> object for the card text, most of the rest are just X: Y text.
+#    else:
+#      print "Can't handle: ", attribute.text # debugging
     card_list.append(card)
   break # TEMP: Just to speed things up instead of processing ALL the cards.
 
