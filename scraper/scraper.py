@@ -55,13 +55,13 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
     elif attribute.text.find(':') != -1:
       # TODO: This needs to be tested but is elegent as hell if it works. I think.
       sarr = attribute.text.split(':', 1)
-      if sarr[1].strip().length > 0:  # Some blank fields show up, ignore those
+      if len(sarr[1].strip()) > 0:  # Some blank fields show up, ignore those
         card[sarr[0]] = sarr[1].strip()
     else:
       print "Can't handle: " + attribute.text
     # There is a <SPAN> object for the card text, most of the rest are just X: Y text.
     card_list.append(card)
-    break # TEMP: Just to speed things up instead of processing ALL the cards.
+  break # TEMP: Just to speed things up instead of processing ALL the cards.
 
 
 
