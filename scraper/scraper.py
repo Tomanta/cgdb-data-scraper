@@ -14,7 +14,7 @@ core_url = 'http://www.cardgamedb.com/index.php/agameofthrones2ndedition/a-game-
 key_list = ['Title', 'Set', 'Pack', 'Number', 'Illustrator', 'Type',
             'Unique', 'Gold', 'Initiative', 'Claim', 'Reserve', 'Cost',
             'Faction', 'Loyal', 'Military', 'Intrigue', 'Power', 'Strength',
-            'Traits', 'Text', 'Flavor', 'Deck Limit'] 
+            'Traits', 'Text', 'Flavor', 'Deck Limit', 'Image'] 
 
 card_list = []
 
@@ -40,8 +40,8 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
   # For the first part let's grab the things every card will have that's NOT in the
   # <ul> section
 
-  tag.find('div', {'class': 'cardImage'}).find('img')['src']
-  tag.find('div', {'class': 'cardText'}).find('h1').text
+  card['Image'] = tag.find('div', {'class': 'cardImage'}).find('img')['src']
+  card['Title'] = tag.find('div', {'class': 'cardText'}).find('h1').text
   
   # Now let's add things from the list
   for attribute in tag.findAll('li'):
