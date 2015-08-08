@@ -6,6 +6,7 @@
 
 import requests
 from bs4 import BeautifulSoup
+import csv
 
 
 core_url = 'http://www.cardgamedb.com/index.php/agameofthrones2ndedition/a-game-of-thrones-2nd-edition-cards/_/core/?sort_col=field_554&sort_order=asc&per_page=300'
@@ -34,29 +35,31 @@ soup = BeautifulSoup(r.content, 'html.parser')
 
 # As a starting point, this extracts the card image and the card name.
 # TODO: Maybe change this to a MAP call?
+
 for tag in soup.findAll('div', {'class': "cardRecord"}):
   card = init_card() # start a new card dictionary
 
   # For the first part let's grab the things every card will have that's NOT in the
   # <ul> section
 
-  card['Image'] = tag.find('div', {'class': 'cardImage'}).find('img')['src']
-  card['Title'] = tag.find('div', {'class': 'cardText'}).find('h1').text
+  card['Image'] = tag.find('div', {'class': 'cardImage'}).find('img')['src'].strip().encode("utf-8", "replace")
+  card['Title'] = tag.find('div', {'class': 'cardText'}).find('h1').text.strip().encode("utf-8", "replace")
   
   # Now let's add things from the list
   for attribute in tag.findAll('li'):
-    
     # a few items have class, that makes it easy!
-    if attribute.find('span'):
-       # TODO: Format text part of card correctly
-       card['Text'] = attribute.text.strip()
-    elif attribute.has_attr('class') and len(attribute.text) > 0:
+    if attribute.has_attr('class') and len(attribute.text) > 0:
        if 'traits' in attribute['class']:
-           card['Traits'] = attribute.text
+           card['Traits'] = attribute.text.strip().encode("utf-8", "replace")
        elif 'flavorText' in attribute['class']:
-           card['Flavor'] = attribute.text
+           card['Flavor'] = attribute.text.strip().encode("utf-8", "replace")
+    # Benjen Stark *has* to be different for some reason and not use SPAN.
+    elif attribute.find('span') or (attribute.find('em') and 'bbc' in attribute.find('em')['class']):
+       # TODO: Format text part of card correctly
+       # Plot deck limit shows up here.
+       card['Text'] = attribute.text.strip().strip().encode("utf-8", "replace")
     elif attribute.text.find(':') != -1:
-      # TODO: This needs to be tested but is elegent as hell if it works. I think.
+
       sarr = attribute.text.split(':', 1)
       if len(sarr[1].strip()) > 0:  # Some blank fields show up, ignore those
         if sarr[0] == 'Icons':
@@ -66,16 +69,17 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
             card['Intrigue'] = 'True'
           if sarr[1].find('Power') != -1:
             card['Power'] = 'True'
-        # TODO: Loyal is found here. Ex: Stark (Loyal)
-#       elif sarr[0] == 'Faction':
-          # DO STUFF
+        elif sarr[0] == 'Quantity':
+          continue # skip
+        elif sarr[0] == 'Faction' and sarr[1].find('(Loyal)') != -1:
+          card['Loyal'] = 'True'
+          card['Faction'] = sarr[1].rsplit(' ', 1)[0].strip().encode("utf-8", "replace")
         else:
-          card[sarr[0]] = sarr[1].strip()
-#    else:
-#      print "Can't handle: ", attribute.text # debugging
-    card_list.append(card)
-  break # TEMP: Just to speed things up instead of processing ALL the cards.
+          card[sarr[0]] = sarr[1].strip().encode("utf-8", "replace")
 
+  card_list.append(card)
 
-
-
+with open('cards.csv', 'wb') as output_file:
+  dict_writer = csv.DictWriter(output_file, key_list)
+  dict_writer.writeheader()
+  dict_writer.writerows(card_list)
