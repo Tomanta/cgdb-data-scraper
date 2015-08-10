@@ -47,7 +47,7 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
   title = tag.find('div', {'class': 'cardText'}).find('h1').text.strip()
   if title[0] == u'\u2022':
     card['Unique'] = 'True'
-    card['Title'] = title.split(' ')[1].strip().encode("utf-8", "replace")
+    card['Title'] = title.split(' ',1)[1].strip().encode("utf-8", "replace")
   else:
     card['Title'] = title.strip().encode("utf-8", "replace")
 
