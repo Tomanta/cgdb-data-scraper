@@ -7,7 +7,7 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
-
+import re
 
 core_url = 'http://www.cardgamedb.com/index.php/agameofthrones2ndedition/a-game-of-thrones-2nd-edition-cards/_/core/?sort_col=field_554&sort_order=asc&per_page=300'
 
@@ -15,7 +15,7 @@ core_url = 'http://www.cardgamedb.com/index.php/agameofthrones2ndedition/a-game-
 key_list = ['Title', 'Set', 'Pack', 'Number', 'Illustrator', 'Type',
             'Unique', 'Gold', 'Initiative', 'Claim', 'Reserve', 'Cost',
             'Faction', 'Loyal', 'Military', 'Intrigue', 'Power', 'Strength',
-            'Traits', 'Text', 'Flavor', 'Deck Limit', 'Image'] 
+            'Traits', 'Text', 'Flavor', 'Deck Limit', 'Image', 'Unique'] 
 
 card_list = []
 
@@ -31,7 +31,7 @@ def init_card():
   return c
 
 r = requests.get(core_url)
-soup = BeautifulSoup(r.content, 'html.parser')
+soup = BeautifulSoup(re.sub('<BR>', '\n', r.content), 'html.parser')
 
 # As a starting point, this extracts the card image and the card name.
 # TODO: Maybe change this to a MAP call?
@@ -43,8 +43,15 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
   # <ul> section
 
   card['Image'] = tag.find('div', {'class': 'cardImage'}).find('img')['src'].strip().encode("utf-8", "replace")
-  card['Title'] = tag.find('div', {'class': 'cardText'}).find('h1').text.strip().encode("utf-8", "replace")
-  
+
+  title = tag.find('div', {'class': 'cardText'}).find('h1').text.strip()
+  if title[0] == u'\u2022':
+    card['Unique'] = 'True'
+    card['Title'] = title.split(' ')[1].strip().encode("utf-8", "replace")
+  else:
+    card['Title'] = title.strip().encode("utf-8", "replace")
+
+
   # Now let's add things from the list
   for attribute in tag.findAll('li'):
     # a few items have class, that makes it easy!
