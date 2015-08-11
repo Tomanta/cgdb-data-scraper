@@ -15,7 +15,7 @@ core_url = 'http://www.cardgamedb.com/index.php/agameofthrones2ndedition/a-game-
 key_list = ['Title', 'Set', 'Pack', 'Number', 'Illustrator', 'Type',
             'Unique', 'Gold', 'Initiative', 'Claim', 'Reserve', 'Cost',
             'Faction', 'Loyal', 'Military', 'Intrigue', 'Power', 'Strength',
-            'Traits', 'Text', 'Flavor', 'Deck Limit', 'Image', 'Unique'] 
+            'Traits', 'Text', 'Flavor', 'Deck Limit', 'Image'] 
 
 card_list = []
 

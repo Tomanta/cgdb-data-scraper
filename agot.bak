@@ -1,0 +1,138 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'SQL_ASCII';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+--
+-- Name: trigger_fix_runique(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION trigger_fix_runique() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF NEW.runique IS NULL THEN NEW.runique := FALSE;
+  END IF;
+RETURN NEW;
+END$$;
+
+
+ALTER FUNCTION public.trigger_fix_runique() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: cards; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE cards (
+    cardid integer NOT NULL,
+    title character varying NOT NULL,
+    set character varying NOT NULL,
+    pack character varying NOT NULL,
+    number character varying NOT NULL,
+    illustrator character varying NOT NULL,
+    type character varying NOT NULL,
+    runique boolean DEFAULT false,
+    gold character varying DEFAULT ''::character varying,
+    initiative character varying DEFAULT ''::character varying NOT NULL,
+    claim character varying DEFAULT ''::character varying NOT NULL,
+    reserve character varying DEFAULT ''::character varying NOT NULL,
+    cost character varying DEFAULT ''::character varying NOT NULL,
+    faction character varying DEFAULT 'Neutral'::character varying NOT NULL,
+    loyal boolean DEFAULT false,
+    military boolean DEFAULT false,
+    intrigue boolean DEFAULT false,
+    power boolean DEFAULT false,
+    strength character varying DEFAULT ''::character varying NOT NULL,
+    traits character varying DEFAULT ''::character varying NOT NULL,
+    text character varying DEFAULT ''::character varying NOT NULL,
+    flavor character varying DEFAULT ''::character varying NOT NULL,
+    decklimit integer DEFAULT (-1),
+    image character varying NOT NULL
+);
+
+
+ALTER TABLE public.cards OWNER TO postgres;
+
+--
+-- Name: cards_cardid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE cards_cardid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.cards_cardid_seq OWNER TO postgres;
+
+--
+-- Name: cards_cardid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE cards_cardid_seq OWNED BY cards.cardid;
+
+
+--
+-- Name: cardid; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY cards ALTER COLUMN cardid SET DEFAULT nextval('cards_cardid_seq'::regclass);
+
+
+--
+-- Name: cards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY cards
+    ADD CONSTRAINT cards_pkey PRIMARY KEY (cardid);
+
+
+--
+-- Name: tuniquecheck; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER tuniquecheck BEFORE INSERT ON cards FOR EACH ROW EXECUTE PROCEDURE trigger_fix_runique();
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
