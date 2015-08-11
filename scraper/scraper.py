@@ -65,6 +65,8 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
        # TODO: Format text part of card correctly
        # Plot deck limit shows up here.
        card['Text'] = attribute.text.strip().strip().encode("utf-8", "replace")
+       if card['Text'].find('Plot deck limit') != -1:
+         card['Deck Limit'] = 1
     elif attribute.text.find(':') != -1:
 
       sarr = attribute.text.split(':', 1)
