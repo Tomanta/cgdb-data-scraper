@@ -68,17 +68,17 @@ for tag in soup.findAll('div', {'class': "cardRecord"}):
                 if sarr[0] == 'Icons':
                     if sarr[1].find('Military') != -1:
                         card['Military'] = 'True'
-                if sarr[1].find('Intrigue') != -1:
-                    card['Intrigue'] = 'True'
-                if sarr[1].find('Power') != -1:
-                    card['Power'] = 'True'
-            elif sarr[0] == 'Quantity':
-                continue # skip
-            elif sarr[0] == 'Faction' and sarr[1].find('(Loyal)') != -1:
-                card['Loyal'] = 'True'
-                card['Faction'] = sarr[1].rsplit(' ', 1)[0].strip().encode("utf-8", "replace")
-            else:
-                card[sarr[0]] = sarr[1].strip().encode("utf-8", "replace")
+                    if sarr[1].find('Intrigue') != -1:
+                        card['Intrigue'] = 'True'
+                    if sarr[1].find('Power') != -1:
+                        card['Power'] = 'True'
+                elif sarr[0] == 'Quantity':
+                    continue # skip
+                elif sarr[0] == 'Faction' and sarr[1].find('(Loyal)') != -1:
+                    card['Loyal'] = 'True'
+                    card['Faction'] = sarr[1].rsplit(' ', 1)[0].strip().encode("utf-8", "replace")
+                else:
+                    card[sarr[0]] = sarr[1].strip().encode("utf-8", "replace")
     card_list.append(card)
 
 with open('cards.csv', 'wb') as output_file:
